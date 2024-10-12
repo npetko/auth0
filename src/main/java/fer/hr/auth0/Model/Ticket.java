@@ -2,6 +2,7 @@ package fer.hr.auth0.Model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Table(name = "ticket")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Ticket {
 
     @Id
@@ -29,5 +31,12 @@ public class Ticket {
 
     @Column
     private LocalDateTime createdAt;
+
+    public Ticket(String vatin, String firstName, String lastName) {
+        this.vatin = vatin;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
