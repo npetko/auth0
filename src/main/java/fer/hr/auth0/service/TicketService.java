@@ -1,7 +1,7 @@
-package fer.hr.auth0.Service;
+package fer.hr.auth0.service;
 
-import fer.hr.auth0.Model.Ticket;
-import fer.hr.auth0.Repository.TicketRepository;
+import fer.hr.auth0.model.Ticket;
+import fer.hr.auth0.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

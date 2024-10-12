@@ -1,4 +1,4 @@
-package fer.hr.auth0.Model;
+package fer.hr.auth0.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

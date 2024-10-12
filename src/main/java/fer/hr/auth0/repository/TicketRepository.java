@@ -1,6 +1,6 @@
-package fer.hr.auth0.Repository;
+package fer.hr.auth0.repository;
 
-import fer.hr.auth0.Model.Ticket;
+import fer.hr.auth0.model.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
