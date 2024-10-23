@@ -24,14 +24,16 @@ public class SecurityConfig {
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/static/css/styles.css").permitAll()
                         .requestMatchers("/static/js/**").permitAll()
-                        .requestMatchers("/api/tickets/generate").permitAll()
-                        .requestMatchers("/api/tickets/**").permitAll()
+//                        .requestMatchers("/api/tickets/generate").authenticated()
+//                        .requestMatchers("/api/tickets/**").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .oauth2Login((oauth2Login) -> oauth2Login
                         .userInfoEndpoint((userInfo) -> userInfo
                                 .userAuthoritiesMapper(grantedAuthoritiesMapper())
                         )
-                );
+                )
+                .csrf().disable();
         return http.build();
     }
 
