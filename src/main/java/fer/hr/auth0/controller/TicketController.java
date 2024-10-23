@@ -5,7 +5,6 @@ import fer.hr.auth0.model.Ticket;
 import fer.hr.auth0.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +37,7 @@ public class TicketController {
     @CrossOrigin(value = "*", allowedHeaders = "*")
     public ResponseEntity<Long> getTotalTickets() {
         Long count = ticketService.getTotalTicketsCount();
+//        System.out.println(count);
         return ResponseEntity.ok(count);
     }
 
