@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class TicketController {
                     ticketRequest.getLastName()
             );
 
-            String ticketUrl = "http://localhost:8080/api/tickets/" + ticket.getId();
+            String ticketUrl = "http://localhost:8080/api/tickets/ticket/" + ticket.getId();
             byte[] qrCodeImage = qrCodeService.generateQRCodeImage(ticketUrl);
 
             HttpHeaders headers = new HttpHeaders();
@@ -43,7 +44,7 @@ public class TicketController {
 
             return new ResponseEntity<>(qrCodeImage, headers, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("Tu pada");
+//            System.out.println("Tu pada");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating ticket or QR code");
         }
     }
@@ -58,9 +59,20 @@ public class TicketController {
 
     @GetMapping("/{id}")
     @CrossOrigin(value = "*", allowedHeaders = "*")
-    public ResponseEntity<?> getTicketDetails(@PathVariable UUID id) {
+    public ResponseEntity<Ticket> getTicketDetails(@PathVariable UUID id) {
         Optional<Ticket> ticket = ticketService.getTicketById(id);
-        return ticket.isPresent() ? ResponseEntity.ok(ticket.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found");
+
+        return ticket.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @GetMapping("/ticket/{ticketId}")
+    @CrossOrigin(value = "*", allowedHeaders = "*")
+    public ResponseEntity<Void> serveTicketPage(@PathVariable UUID ticketId) {
+        String redirectUrl = "/ticket.html?ticketId=" + ticketId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(redirectUrl));
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
 }
