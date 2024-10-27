@@ -21,7 +21,7 @@ public class TicketService {
 
     public Ticket createTicket(String vatin, String firstName, String lastName) throws Exception {
         if (getTicketsByVatin(vatin).size() >= 3) {
-            throw new Exception("Maximum number of tickets reached for OIB: " + vatin);
+            throw new Exception("Generiran maksimalan broj karata za OIB: " + vatin);
         }
         return ticketRepository.save(new Ticket(vatin, firstName, lastName));
     }

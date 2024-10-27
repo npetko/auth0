@@ -29,6 +29,16 @@ public class TicketController {
     @PostMapping("/generate")
     @CrossOrigin(value = "*", allowedHeaders = "*")
     public ResponseEntity<?> generateTicket(@RequestBody TicketRequest ticketRequest) {
+        if (ticketRequest.getVatin() == null || ticketRequest.getVatin().isEmpty() ||
+                ticketRequest.getFirstName() == null || ticketRequest.getFirstName().isEmpty() ||
+                ticketRequest.getLastName() == null || ticketRequest.getLastName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nisu uneseni svi potrebni podatci.");
+        }
+
+        if (!ticketRequest.getVatin().matches("\\d{11}")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OIB mora biti točno 11 znamenki.");
+        }
+
         try {
             Ticket ticket = ticketService.createTicket(
                     ticketRequest.getVatin(),
@@ -44,7 +54,9 @@ public class TicketController {
 
             return new ResponseEntity<>(qrCodeImage, headers, HttpStatus.OK);
         } catch (Exception e) {
-//            System.out.println("Tu pada");
+            if (e.getMessage().contains("Generiran maksimalan broj karata")) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating ticket or QR code");
         }
     }
@@ -53,7 +65,6 @@ public class TicketController {
     @CrossOrigin(value = "*", allowedHeaders = "*")
     public ResponseEntity<Long> getTotalTickets() {
         Long count = ticketService.getTotalTicketsCount();
-//        System.out.println(count);
         return ResponseEntity.ok(count);
     }
 

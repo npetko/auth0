@@ -15,12 +15,10 @@
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // console.log('Ucitan javascript')
         fetch('api/tickets/count')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('ticket-count').textContent = data;
-                // console.log(data)
             })
             .catch(err => {
                 console.error('Could not fetch ticket count:', err);

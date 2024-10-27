@@ -4,63 +4,41 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/static/css/styles.css").permitAll()
-                        .requestMatchers("/static/js/**").permitAll()
-//                        .requestMatchers("/api/tickets/generate").authenticated()
-//                        .requestMatchers("/api/tickets/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .oauth2Login((oauth2Login) -> oauth2Login
-                        .userInfoEndpoint((userInfo) -> userInfo
-                                .userAuthoritiesMapper(grantedAuthoritiesMapper())
-                        )
-                )
-                .csrf().disable();
-        return http.build();
+    private final LogoutHandler logoutHandler;
+
+    public SecurityConfig(LogoutHandler logoutHandler) {
+        this.logoutHandler = logoutHandler;
     }
 
-    private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
-        return (authorities) -> {
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-
-            authorities.forEach((authority) -> {
-                GrantedAuthority mappedAuthority;
-
-                if (authority instanceof OidcUserAuthority) {
-                    OidcUserAuthority userAuthority = (OidcUserAuthority) authority;
-                    mappedAuthority = new OidcUserAuthority(
-                            "ROLE_USER", userAuthority.getIdToken(), userAuthority.getUserInfo());
-                } else if (authority instanceof OAuth2UserAuthority) {
-                    OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) authority;
-                    mappedAuthority = new OAuth2UserAuthority(
-                            "ROLE_USER", userAuthority.getAttributes());
-                } else {
-                    mappedAuthority = authority;
-                }
-
-                mappedAuthorities.add(mappedAuthority);
-            });
-
-            return mappedAuthorities;
-        };
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable();
+        return http.authorizeHttpRequests(auth -> {
+            try {
+                auth.requestMatchers("/api/tickets/generate").hasAuthority("SCOPE_write:generate");
+                auth.requestMatchers("/api/tickets/ticket/{ticketId}").authenticated()
+                        .and().oauth2Login()
+                        .and().logout()
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .addLogoutHandler(logoutHandler);
+                auth.requestMatchers("/static/css/styles.css").permitAll()
+                        .requestMatchers("/**").permitAll();
+                auth.anyRequest().permitAll();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        })
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt())
+                .build();
     }
 
 }

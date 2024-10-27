@@ -8,38 +8,43 @@
 </head>
 <body>
 <div class="container">
-    <h1>Ticket Information</h1>
-    <div id="ticket-details">
-        <!-- Ticket details will be loaded here -->
-    </div>
+    <div id="user-info"></div>
+    <h1>Informacije o karti</h1>
+    <div id="ticket-details"></div>
     <button id="logout-btn">Logout</button>
 </div>
 
 <script>
-    // Extract the ticket ID from the URL
+    fetch("/api/userinfo")
+        .then(response => response.json())
+        .then(data => {
+            if (data.name) {
+                const userInfo = document.getElementById("user-info");
+                userInfo.innerHTML = `<p>Logged in: ${data.name}</p>`;
+            } else {
+                console.error("Failed to fetch user info:", data.error);
+            }
+        })
+        .catch(error => console.error('Error fetching user info:', error));
+
     const path = window.location.search.split("?").pop();
-    // console.log(path)
     const ticketId = path.split("=").pop();
 
-    // Fetch ticket information from the backend using the ticket ID
     fetch(`/api/tickets/${ticketId}`)
         .then(response => response.json())
         .then(data => {
-            // Display the ticket information
             const ticketDetails = document.getElementById("ticket-details");
             ticketDetails.innerHTML = `
-                    <p>VATIN: ${data.vatin}</p>
-                    <p>First Name: ${data.firstName}</p>
-                    <p>Last Name: ${data.lastName}</p>
-                    <p>Created At: ${data.createdAt}</p>
+                    <p>OIB: ${data.vatin}</p>
+                    <p>Ime: ${data.firstName}</p>
+                    <p>Prezime: ${data.lastName}</p>
+                    <p>Kreirano: ${data.createdAt}</p>
                 `;
         })
         .catch(error => console.error('Error fetching ticket:', error));
 
-    // Logout button functionality
     document.getElementById('logout-btn').addEventListener('click', () => {
-        // Implement logout logic here (e.g., redirect to Auth0 logout)
-        window.location.href = '/logout';  // Redirect to logout
+        window.location.href = '/logout';
     });
 </script>
 </body>
