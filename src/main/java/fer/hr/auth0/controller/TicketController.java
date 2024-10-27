@@ -46,7 +46,7 @@ public class TicketController {
                     ticketRequest.getLastName()
             );
 
-            String ticketUrl = "http://localhost:8080/api/tickets/ticket/" + ticket.getId();
+            String ticketUrl = "https://auth0-6y8l.onrender.com/" + ticket.getId();
             byte[] qrCodeImage = qrCodeService.generateQRCodeImage(ticketUrl);
 
             HttpHeaders headers = new HttpHeaders();
